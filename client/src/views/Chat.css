@@ -1,0 +1,25 @@
+.chat_page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.message_send {
+    display: flex;
+    flex-direction: row;
+    margin: 15px;
+    justify-content: space-between;
+}
+.message_textfield {
+    margin-right: 10px;
+    flex-grow: 1;
+}
+
+.message_list {
+    flex-grow: 1;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+

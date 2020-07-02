@@ -1,14 +1,12 @@
 .message {
     display: flex;
     flex-direction: column;
-    border:solid;
-    margin: 5px 5px 5px 5px;
+    border: solid;
+    margin: 5px;
     border-radius: 5px;
-    width: 100%;
 }
 .message_first_line {
     display: flex;
-    flex-direction: row;
     margin-left: 15px;
     margin-top: 15px;
 }
