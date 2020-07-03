@@ -1,9 +1,36 @@
 .chat_page {
     display: flex;
-    flex-direction: column;
     height: 100vh;
 }
-
+.first_chat_page {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    border: solid;
+}
+.users{
+    display: flex;
+    flex-direction: column;
+    border: solid;
+    overflow-y: auto;
+}
+.signout_button {
+    display: flex;
+    justify-content: center;
+}
+.second_chat_page {
+    display: flex;
+    flex-direction: column;
+    border: solid;
+    width: 80%;
+}
+.message_list {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: auto;
+}
 .message_send {
     display: flex;
     flex-direction: row;
@@ -13,13 +40,8 @@
 .message_textfield {
     margin-right: 10px;
     flex-grow: 1;
+
 }
 
-.message_list {
-    flex-grow: 1;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-}
+
 

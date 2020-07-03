@@ -7,5 +7,5 @@ exports.nickname = Joi
 
 exports.password = Joi
     .string()
-    .min(8)
+    .min(5)
     .max(16)
