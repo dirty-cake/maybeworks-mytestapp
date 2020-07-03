@@ -9,7 +9,7 @@ app.use(body())
 
 app.use(users)
 
-app.listen(8080, () => {
+const server = app.listen(8080, () => {
   console.log('Server is running')
 })
 
@@ -17,9 +17,9 @@ const io = new Socket(server, {
   path: '/socket'
 })
 
-io.on('connect', socket => {
-  socket.emit('new message', {author: 'irka', time: Date.now(), text: 'Bye'})
-  socket.on('new message', message => { 
-    console.log(message) 
+io.on('connect', (socket) => {
+  socket.on('new message', message => {
+    socket.broadcast.emit('new message', message)
   })
 })
+

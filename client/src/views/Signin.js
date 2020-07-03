@@ -2,6 +2,7 @@ import React from 'react'
 import '../views/Signin.css'
 import { Button, TextField } from '@material-ui/core/'
 import axios from "axios"
+import { withRouter } from "react-router"
 
 class Signin extends React.Component {
     constructor(props) {
@@ -15,6 +16,8 @@ class Signin extends React.Component {
       try {
         const response = await axios.post('/users/signin', { nickname: this.state.nickname, password: this.state.password });
         console.log('Returned data:', response);
+        localStorage.setItem('token', response.data.token)
+        this.props.history.push('/chat')
       } catch (e) {
         console.log(`Axios request failed: ${e}`);
       }
@@ -30,7 +33,7 @@ class Signin extends React.Component {
             <div className="page_login">
                 <div className="login_form">
                 <TextField onChange={this.nicknameChange} label="nickname" variant="outlined" className="login_text_field"/>
-                <TextField onChange={this.passwordChange} label="password" variant="outlined" className="login_text_field"/>
+                <TextField onChange={this.passwordChange} label="password" type="password" variant="outlined" className="login_text_field"/>
                 <Button onClick={this.signin} size="large" variant="outlined" color="primary">Sing in</Button>
                 </div>
             </div>
@@ -38,4 +41,4 @@ class Signin extends React.Component {
     }
 }
 
-export default Signin;
+export default withRouter(Signin);

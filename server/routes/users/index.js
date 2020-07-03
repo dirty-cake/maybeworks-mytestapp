@@ -12,7 +12,7 @@ router.post('/signin', async (ctx) => {
   if (user === undefined) {
     db.users.push(validatedUser)
     const token = jwt.sign({ nickname: validatedUser.nickname }, 'piupiu')
-    ctx.body = { ...validatedUser, token }
+    ctx.body = { token }
     ctx.status = 201
   } else if (user.password !== validatedUser.password) {
     ctx.status = 400
@@ -20,7 +20,7 @@ router.post('/signin', async (ctx) => {
   } else {
     const token = jwt.sign({ nickname: validatedUser.nickname }, 'piupiu')
     ctx.status = 201
-    ctx.body = { ...validatedUser, token }
+    ctx.body = { token }
   }
 })
 
