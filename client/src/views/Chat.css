@@ -29,7 +29,7 @@
     flex-grow: 1;
     flex-direction: column;
     justify-content: flex-end;
-    overflow: auto;
+    overflow-x: auto;
 }
 .message_send {
     display: flex;

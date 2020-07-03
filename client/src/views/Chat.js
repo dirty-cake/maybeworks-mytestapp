@@ -2,12 +2,11 @@ import React from 'react';
 import Message from '../components/Message' 
 import User from '../components/User' 
 import { withRouter } from "react-router"
-
-
-
-import { Button, TextField } from '@material-ui/core/';
+import { Button, TextField } from '@material-ui/core/'
 import './Chat.css'
 import io from 'socket.io-client'
+
+
 
 class Chat extends React.Component {
     constructor(props) {
@@ -32,7 +31,9 @@ class Chat extends React.Component {
         this.setState({text: event.target.value});
     }
     sendMessage = () => {
-        if(this.state.text !== '') {
+        if (this.state.text.length >= 300) {
+            console.log('You can not put more than 300 elements')
+        } else if(this.state.text !== '') {
             this.socket.emit('new message', {author: 'irka', time: Date.now(), text: this.state.text})
             this.setState(state => ({
                 messages: [...state.messages, {author: 'irka', time: Date.now(), text: this.state.text}]
@@ -41,7 +42,6 @@ class Chat extends React.Component {
         }
     }
     onKeyPress = (event) => {
-        console.log('$$$$$$ -', event)
         if (event.key === 'Enter') {
             this.sendMessage()
         }}
