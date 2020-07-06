@@ -3,11 +3,16 @@ const SocketIO = require('socket.io')
 const body = require('koa-body')
 const users = require('./routes/users')
 const jwt = require('jsonwebtoken')
-
+const models = require('./db/index.js')
 const app = new Koa()
 
 app.use(body())
+app.use(async (ctx, next) => {
+  ctx.state.models = models
+  await next()
+})
 app.use(users)
+
 
 const server = app.listen(8080, () => {
   console.log('Server is running')
