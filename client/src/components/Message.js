@@ -1,5 +1,6 @@
 import React from 'react';
 import './Message.css'
+import { DateTime } from 'luxon' 
 
 class Message extends React.Component {
     
@@ -7,8 +8,8 @@ class Message extends React.Component {
       return (
         <div className="message">
             <div className="message_first_line">
-                <div className="message_author">{ this.props.author }</div>
-                <div className="message_time">{ this.props.time } </div>
+                <div className="message_author">{ this.props.nickname }</div>
+                <div className="message_time">{ DateTime.fromMillis(this.props.time).toLocaleString(DateTime.DATETIME_SHORT) } </div>
             </div>
             <div className="message_text">{ this.props.text }</div>
         </div>
