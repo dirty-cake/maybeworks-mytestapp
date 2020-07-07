@@ -31,6 +31,9 @@ io.use((socket, next) => {
 io.on('connect', (socket) => {
   socket.broadcast.emit('user connected', { nickname: socket.user.nickname })
   socket.on('new message', async (message) => {
+    if (socket.user.is_muted) {
+      return console.log('You are muted. You can not send messages')
+    }
     const validatedMessage = await schemas.send.validateAsync(message)
     socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: Date.now(), text: validatedMessage.text})
   })

@@ -15,7 +15,7 @@ class Chat extends React.Component {
             text: '',
             messages: [],
             users: [],
-            user: { nickname: '' }
+            user: { nickname: '', is_muted: false }
         }
     }
     componentDidMount() {
@@ -59,7 +59,9 @@ class Chat extends React.Component {
             return console.log('You can not put more than 200 elements')
         } else if (this.state.text === '') {
             return console.log('You can not send empty message')
-        } 
+        } else if (this.state.user.is_muted) {
+            return console.log('You are muted. You can not send messages')
+        }
         this.socket.emit('new message', {text: this.state.text})
         this.addMessage({nickname: this.state.user.nickname, time: Date.now(), text: this.state.text})
         this.setState({text: ''})
@@ -92,7 +94,7 @@ class Chat extends React.Component {
                             onKeyUp={event => event.key === 'Enter' ? this.sendMessage(event) : null} 
                             onChange={this.changeText} value={this.state.text} label="Write a message" variant="outlined" fullWidth/>
                         </div>
-                        <Button onClick={this.sendMessage} size="large" variant="outlined" color="primary" className="send_button" disabled={this.state.text.length > 200 || this.state.text.length < 1 } > Send</Button>
+                        <Button onClick={this.sendMessage} size="large" variant="outlined" color="primary" className="send_button" disabled={(this.state.text.length > 200 || this.state.text.length < 1) } > Send</Button>
                     </div>
                 </div>
             </div>
