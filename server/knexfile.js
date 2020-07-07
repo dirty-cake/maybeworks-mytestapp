@@ -1,14 +1,9 @@
+const { DB } = require('./config')
+
 module.exports = {
     client: 'mysql',
-    connection: {
-      host: 'localhost',
-      user: 'root',
-      password: '1q2W3e4R%',
-      database: 'mwdb'
-    },
+    connection: DB,
     migrations: {
-      loadExtensions: ['.js'],
-      extension: 'js',
       directory: './db/migrations'
     }
   }

@@ -1,15 +1,11 @@
 const Objection = require('objection')
 const Knex = require('knex')
 const User = require('./models/User.js')
+const { DB } = require('../config')
 
 const knex = Knex({
     client: 'mysql',
-    connection: {
-        host: 'localhost',
-        user: 'root',
-        password: '1q2W3e4R%',
-        database: 'mwdb'
-    }
+    connection: DB
 })
 
 Objection.Model.knex(knex)
