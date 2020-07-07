@@ -4,6 +4,7 @@ const body = require('koa-body')
 const users = require('./routes/users')
 const jwt = require('jsonwebtoken')
 const models = require('./db/index.js')
+const schemas = require('./schemas/messages')
 const { JWT_PRIVATE_KEY } = require('./config')
 const app = new Koa()
 
@@ -30,7 +31,7 @@ io.use((socket, next) => {
 io.on('connect', (socket) => {
   socket.broadcast.emit('user connected', { nickname: socket.user.nickname })
   socket.on('new message', async (message) => {
-    const validatedMessage = await schemas.sendmessage.validateAsync(message)
+    const validatedMessage = await schemas.send.validateAsync(message)
     socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: Date.now(), text: validatedMessage.text})
   })
   socket.on('disconnect', () => {

@@ -1,7 +1,7 @@
 const Router = require('koa-router')
 const jwt = require('jsonwebtoken')
-const schemas = require('./schemas')
-const { JWT_PRIVATE_KEY } = require('../../config')
+const schemas = require('../schemas/users')
+const { JWT_PRIVATE_KEY } = require('../config')
 
 const router = new Router({ prefix: '/users' })
 
