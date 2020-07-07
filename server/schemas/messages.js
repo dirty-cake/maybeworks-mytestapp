@@ -5,5 +5,5 @@ const Message = {
 }
 
 exports.send = Joi.object({
-    test: Message.text.required()
+    text: Message.text.required()
 })
