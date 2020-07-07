@@ -29,8 +29,9 @@ io.use((socket, next) => {
 
 io.on('connect', (socket) => {
   socket.broadcast.emit('user connected', { nickname: socket.user.nickname })
-  socket.on('new message', message => {
-    socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: Date.now(), text: message.text})
+  socket.on('new message', async (message) => {
+    const validatedMessage = await schemas.sendmessage.validateAsync(message)
+    socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: Date.now(), text: validatedMessage.text})
   })
   socket.on('disconnect', () => {
     socket.broadcast.emit('user disconnected', { nickname: socket.user.nickname })
