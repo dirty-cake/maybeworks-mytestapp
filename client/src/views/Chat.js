@@ -89,7 +89,14 @@ class Chat extends React.Component {
         this.socket.disconnect()
         this.props.history.push('/')
     }
-    
+    /* mute = () => {
+        this.socket.emit('mute user', {id: })
+        console.log(, 'is muted')
+    }
+    ban = () => {
+        this.socket.emit('ban user', {id: })
+        console.log(, 'is banned')
+    } */
     render() {
         return (
             <div className="chat_page">
@@ -118,8 +125,8 @@ class Chat extends React.Component {
                                     this.state.user.is_admin 
                                         ? (
                                         <ListItemSecondaryAction >
-                                            <Button size="small" variant="outlined" color="primary" > Mute</Button>
-                                            <Button size="small" variant="outlined" color="primary" > Ban</Button>
+                                            <Button onClick={() => {this.mute(user.id)}} size="small" variant="outlined" color="primary" > Mute</Button>
+                                            <Button onClick={() => {this.ban(user.id)}} size="small" variant="outlined" color="primary" > Ban</Button>
                                         </ListItemSecondaryAction>
                                         )
                                         : null 

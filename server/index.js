@@ -44,6 +44,18 @@ io.on('connect', (socket) => {
   socket.on('disconnect', () => {
     socket.broadcast.emit('user disconnected', { nickname: socket.user.nickname })
   })
+  socket.on('mute user', (user) => {
+    if (socket.user.is_admin) {
+      user.is_muted = true
+      socket.broadcast.emit('mute user', { nickname: user.nickname })
+    }
+  })
+  socket.on('ban user', (user) => {
+    if (socket.user.is_admin) {
+      user.is_banned = true
+      socket.broadcast.emit('ban user', { nickname: user.nickname })
+    }
+  })
 })
 
 io.attach(server)
