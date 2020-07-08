@@ -1,12 +1,14 @@
 import React from 'react';
-import Message from '../components/Message' 
-import User from '../components/User' 
-import { withRouter } from "react-router"
-import { Button, TextField } from '@material-ui/core/'
-import './Chat.css'
 import io from 'socket.io-client'
 import jwt from 'jsonwebtoken'
+import Message from '../components/Message' 
+import { withRouter } from 'react-router'
+import { Button, TextField, List, ListItem, ListItemAvatar, ListItemText, ListItemSecondaryAction, IconButton, Avatar } from '@material-ui/core'
+import { Person as PersonIcon, Delete as DeleteIcon } from '@material-ui/icons'
+import axios from 'axios'
 
+
+import './Chat.css'
 
 class Chat extends React.Component {
     constructor(props) {
@@ -22,6 +24,7 @@ class Chat extends React.Component {
         this.setState({
             user: jwt.decode(localStorage.getItem('token'))
         })
+        this.fetchUsers()
         this.socket = io('http://localhost:8080', {
             path: '/socket',
             query: {
@@ -54,6 +57,21 @@ class Chat extends React.Component {
     changeText = (event) => {
         this.setState({text: event.target.value});
     }
+    fetchUsers = async () => {
+        try {
+            const response = await axios.get('/users', {
+                headers: {
+                    authorization: localStorage.getItem('token')
+                }
+            });
+            console.log('Returned data:', response);
+            this.setState(state => ({
+                users: [...state.users, ...response.data]
+            }))
+        } catch (e) {
+            console.log(`Axios request failed: ${e}`);
+        }
+    }
     sendMessage = () => {
         if (this.state.text.length > 200) {
             return console.log('You can not put more than 200 elements')
@@ -75,11 +93,37 @@ class Chat extends React.Component {
         return (
             <div className="chat_page">
                 <div className="first_chat_page">
+                    <List dense>
+                        <ListItem>
+                            <ListItemAvatar>
+                                <Avatar>
+                                    <PersonIcon />
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText primary={this.state.user.nickname} />
+                            <ListItemSecondaryAction>
+                                <Button onClick={this.signout} size="large" variant="outlined" color="primary" > Sign out</Button>
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                        {this.state.users.map(user => (
+                            <ListItem>
+                                <ListItemAvatar>
+                                    <Avatar>
+                                        <PersonIcon />
+                                    </Avatar>
+                                </ListItemAvatar>
+                                <ListItemText primary={user.nickname} />
+                                <ListItemSecondaryAction>
+                                    <IconButton edge="end" aria-label="delete">
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                        ))}
+                    </List>
                     <div className="users">
-                        {this.state.users.map(user => <User {...user}/>)}
                     </div>
                     <div className="signout_button">
-                        <Button onClick={this.signout} size="large" variant="outlined" color="primary" > Sign out</Button>
                     </div>
                 </div>
                 <div className="second_chat_page">

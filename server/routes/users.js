@@ -5,6 +5,14 @@ const { JWT_PRIVATE_KEY } = require('../config')
 
 const router = new Router({ prefix: '/users' })
 
+router.get('/', async (ctx) => {
+  const user = jwt.verify(ctx.request.headers.authorization, JWT_PRIVATE_KEY)
+  const users = await ctx.state.models.User.query()
+    .select('*')
+    .whereNot('id', user.id)
+  ctx.response.body = users
+})
+
 router.post('/signin', async (ctx) => {
   const validatedUser = await schemas.signin.validateAsync(ctx.request.body)
   const user = await ctx.state.models.User.query()

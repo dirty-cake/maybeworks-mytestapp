@@ -23,9 +23,13 @@ const server = app.listen(8080, () => {
 const io = new SocketIO({ path: '/socket' })
 
 io.use((socket, next) => {
-  const token = socket.handshake.query.token
-  socket.user = jwt.verify(token, JWT_PRIVATE_KEY)
-  next()
+  try {
+    const token = socket.handshake.query.token
+    socket.user = jwt.verify(token, JWT_PRIVATE_KEY)
+    next()
+  } catch (err) {
+    console.error(err)
+  }
 })
 
 io.on('connect', (socket) => {
