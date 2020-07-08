@@ -3,8 +3,8 @@ import io from 'socket.io-client'
 import jwt from 'jsonwebtoken'
 import Message from '../components/Message' 
 import { withRouter } from 'react-router'
-import { Button, TextField, List, ListItem, ListItemAvatar, ListItemText, ListItemSecondaryAction, IconButton, Avatar } from '@material-ui/core'
-import { Person as PersonIcon, Delete as DeleteIcon } from '@material-ui/icons'
+import { Button, TextField, List, ListItem, ListItemAvatar, ListItemText, ListItemSecondaryAction, Avatar } from '@material-ui/core'
+import { Person as PersonIcon } from '@material-ui/icons'
 import axios from 'axios'
 
 
@@ -89,6 +89,7 @@ class Chat extends React.Component {
         this.socket.disconnect()
         this.props.history.push('/')
     }
+    
     render() {
         return (
             <div className="chat_page">
@@ -113,11 +114,16 @@ class Chat extends React.Component {
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText primary={user.nickname} />
-                                <ListItemSecondaryAction>
-                                    <IconButton edge="end" aria-label="delete">
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </ListItemSecondaryAction>
+                                {
+                                    this.state.user.is_admin 
+                                        ? (
+                                        <ListItemSecondaryAction >
+                                            <Button size="small" variant="outlined" color="primary" > Mute</Button>
+                                            <Button size="small" variant="outlined" color="primary" > Ban</Button>
+                                        </ListItemSecondaryAction>
+                                        )
+                                        : null 
+                                }
                             </ListItem>
                         ))}
                     </List>
