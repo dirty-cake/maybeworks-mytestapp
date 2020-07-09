@@ -57,13 +57,28 @@ io.on('connect', (socket) => {
       socket.broadcast.emit('mute user', { id: user.id })
     }
   })
+  socket.on('unmute user', async (user) => {
+    if (socket.user.is_admin) {
+      await models.User.query()
+      .patch({ is_muted: false })
+      .findById(user.id)
+    socket.broadcast.emit('unmute user', { id: user.id })
+    }
+  })
   socket.on('ban user', async (user) => {
-    console.log(user)
     if (socket.user.is_admin) {
       await models.User.query()
         .patch({ is_banned: true })
         .findById(user.id)
       socket.broadcast.emit('ban user', { id: user.id })
+    }
+  })
+  socket.on('unban user', async (user) => {
+    if (socket.user.is_admin) {
+      await models.User.query()
+      .patch({ is_banned: false })
+      .findById(user.id)
+      socket.broadcast.emit('unban user', {id: user.id})
     }
   })
 })

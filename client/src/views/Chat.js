@@ -3,8 +3,14 @@ import io from 'socket.io-client'
 import jwt from 'jsonwebtoken'
 import Message from '../components/Message' 
 import { withRouter } from 'react-router'
-import { Button, TextField, List, ListItem, ListItemAvatar, ListItemText, ListItemSecondaryAction, Avatar } from '@material-ui/core'
+import { IconButton, TextField, List, ListItem, ListItemAvatar, ListItemText, ListItemSecondaryAction, Avatar } from '@material-ui/core'
 import { Person as PersonIcon } from '@material-ui/icons'
+import ExitToAppIcon from '@material-ui/icons/ExitToApp'
+import BlockIcon from '@material-ui/icons/Block'
+import SendIcon from '@material-ui/icons/Send'
+import MicOffIcon from '@material-ui/icons/MicOff'
+import MicIcon from '@material-ui/icons/Mic'
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline'
 import axios from 'axios'
 
 
@@ -54,6 +60,17 @@ class Chat extends React.Component {
             } else {
                 this.setState(state => ({
                    users: {...state.users, [user.id]: {...state.users[user.id], is_muted: true}}
+                }))
+            }
+        })
+        this.socket.on('unmute user', user => {
+            if (this.state.user.id === user.id) {
+                this.setState(state => ({
+                    user: {...state.user, is_muted: false}
+                }))
+            } else {
+                this.setState(state => ({
+                   users: {...state.users, [user.id]: {...state.users[user.id], is_muted: false}}
                 }))
             }
         })
@@ -119,9 +136,17 @@ class Chat extends React.Component {
         this.socket.emit('mute user', {id: userId})
         console.log(userId, 'is muted')
     }
+    unmute = (userId) => {
+        this.socket.emit('unmute user', {id: userId})
+        console.log(userId, 'is unmuted')
+    }
     ban = (userId) => {
         this.socket.emit('ban user', {id: userId})
         console.log(userId, 'is banned')
+    }
+    unban = (userId) => {
+        this.socket.emit('unban user', {id: userId})
+        console.log(userId, 'is unbanned')
     }
     render() {
         return (
@@ -131,19 +156,38 @@ class Chat extends React.Component {
                         <ListItem>
                             <ListItemAvatar>
                                 <Avatar style={{backgroundColor: '#' + this.state.user.color.toString(16)}}>
-                                    <PersonIcon />
+                                    {
+                                        this.state.user.is_muted
+                                        ? (
+                                            <MicOffIcon /> 
+                                        ) : (
+                                            <PersonIcon />
+                                        )
+                                    }
                                 </Avatar>
                             </ListItemAvatar>
                             <ListItemText primary={this.state.user.nickname} />
                             <ListItemSecondaryAction>
-                                <Button onClick={this.signout} size="large" variant="outlined" color="primary" > Sign out</Button>
+                                <IconButton onClick={this.signout} color="primary" aria-label="Sign out" >
+                                    <ExitToAppIcon />
+                                </IconButton>
                             </ListItemSecondaryAction>
                         </ListItem>
                         {Object.values(this.state.users).map(user => (
                             <ListItem key={user.id}>
                                 <ListItemAvatar>
                                     <Avatar style={{backgroundColor: '#' + user.color.toString(16)}}>
-                                        <PersonIcon />
+                                        {
+                                            user.is_muted
+                                            ? (
+                                                <MicOffIcon />
+                                            ) : user.is_banned 
+                                            ? (
+                                                <BlockIcon />
+                                            ) : (
+                                                <PersonIcon />
+                                            )
+                                        } 
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText primary={user.nickname} />
@@ -151,8 +195,31 @@ class Chat extends React.Component {
                                     this.state.user.is_admin 
                                         ? (
                                         <ListItemSecondaryAction >
-                                            <Button onClick={() => {this.mute(user.id)}} size="small" variant="outlined" color="primary" > Mute</Button>
-                                            <Button onClick={() => {this.ban(user.id)}} size="small" variant="outlined" color="primary" > Ban</Button>
+                                            {
+                                                user.is_muted
+                                                ? (
+                                                <IconButton onClick={() => {this.unmute(user.id)}} color="primary" aria-label="unmute"> 
+                                                    <MicIcon />
+                                                </IconButton>
+                                                ) : (
+                                                <IconButton onClick={() => {this.mute(user.id)}} color="secondary" aria-label="mute"> 
+                                                    <MicOffIcon />
+                                                </IconButton>
+                                                )
+                                            }
+
+                                            {
+                                                user.is_banned
+                                                ? (
+                                                <IconButton onClick={() => {this.unban(user.id)}} color="primary" aria-label="unban">
+                                                    <AddCircleOutlineIcon />
+                                                </IconButton> 
+                                                ) : (
+                                                <IconButton onClick={() => {this.ban(user.id)}} color="secondary" aria-label="ban">
+                                                    <BlockIcon />
+                                                </IconButton>
+                                                )
+                                            }
                                         </ListItemSecondaryAction>
                                         )
                                         : null 
@@ -177,16 +244,15 @@ class Chat extends React.Component {
                             onKeyUp={event => event.key === 'Enter' ? this.sendMessage(event) : null} 
                             onChange={this.changeText} value={this.state.text} label="Write a message" variant="outlined" fullWidth/>
                         </div>
-                        <Button 
+                        <IconButton 
                             onClick={this.sendMessage} 
-                            size="large" 
-                            variant="outlined" 
                             color="primary" 
                             className="send_button" 
+                            aria-label="send"
                             disabled={this.state.text.length > 200 || this.state.text.length < 1 || this.state.is_waiting || Boolean(this.state.user.is_muted)}
                         > 
-                            Send
-                        </Button>
+                            <SendIcon />
+                        </IconButton>
                     </div>
                 </div>
             </div>
