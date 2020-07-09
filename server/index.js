@@ -54,7 +54,7 @@ io.on('connect', (socket) => {
       await models.User.query()
         .patch({ is_muted: true })
         .findById(user.id)
-      socket.broadcast.emit('mute user', { id: user.id })
+      io.sockets.emit('mute user', { id: user.id })
     }
   })
   socket.on('unmute user', async (user) => {
@@ -62,7 +62,7 @@ io.on('connect', (socket) => {
       await models.User.query()
       .patch({ is_muted: false })
       .findById(user.id)
-    socket.broadcast.emit('unmute user', { id: user.id })
+      io.sockets.emit('unmute user', { id: user.id })
     }
   })
   socket.on('ban user', async (user) => {
@@ -70,7 +70,7 @@ io.on('connect', (socket) => {
       await models.User.query()
         .patch({ is_banned: true })
         .findById(user.id)
-      socket.broadcast.emit('ban user', { id: user.id })
+      io.sockets.emit('ban user', { id: user.id })
     }
   })
   socket.on('unban user', async (user) => {
@@ -78,7 +78,7 @@ io.on('connect', (socket) => {
       await models.User.query()
       .patch({ is_banned: false })
       .findById(user.id)
-      socket.broadcast.emit('unban user', {id: user.id})
+    io.sockets.emit('unban user', {id: user.id})
     }
   })
 })

@@ -46,11 +46,13 @@ class Chat extends React.Component {
             }))
         })
         this.socket.on('user disconnected', user => {
-            this.setState(state => {
-                const users = {...state.users }
-                delete users[user.id]
-                return {users: users}
-            })
+            if (!this.state.user.is_admin) {
+                this.setState(state => {
+                    const users = {...state.users }
+                    delete users[user.id]
+                    return {users: users}
+                })
+            }
         })
         this.socket.on('mute user', user => {
             if (this.state.user.id === user.id) {
@@ -78,7 +80,17 @@ class Chat extends React.Component {
             console.log(user)
             if (this.state.user.id === user.id) {
                 this.signout()
+            } else {
+                this.setState(state => ({
+                    users: {...state.users, [user.id]: {...state.users[user.id], is_banned: true}}
+                }))
             }
+        })
+        this.socket.on('unban user', user => {
+            console.log(user)
+            this.setState(state => ({
+                users: {...state.users, [user.id]: {...state.users[user.id], is_banned: false}}
+            }))
         })
     }
     addMessage = (message) => {
