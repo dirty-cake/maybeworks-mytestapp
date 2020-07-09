@@ -9,12 +9,14 @@ exports.up = async function(knex) {
         table.boolean('is_banned').notNullable().defaultTo(false)
         table.boolean('is_admin').notNullable().defaultTo(false)
         table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
+        table.integer('color').notNullable()
     })
 
     await knex('users').insert({
         nickname: 'admin',
         password: bcrypt.hashSync('12345678', 11),
-        is_admin: true
+        is_admin: true,
+        color: 0x46bf21
     })
 }
 

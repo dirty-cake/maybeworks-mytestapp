@@ -17,7 +17,7 @@ class Chat extends React.Component {
             text: '',
             messages: [],
             users: {},
-            user: { nickname: '', is_muted: false },
+            user: { nickname: '', is_muted: false, color: '' },
             is_waiting: false
         }
     }
@@ -34,6 +34,7 @@ class Chat extends React.Component {
         })
         this.socket.on('new message', this.addMessage)
         this.socket.on('user connected', user => {
+            console.log((user))
             this.setState(state => ({
                 users: {...state.users, [user.id]: user}
             }))
@@ -106,7 +107,7 @@ class Chat extends React.Component {
         this.socket.emit('new message', {text: this.state.text})
         this.setState({is_waiting: true})
         setTimeout(() => this.setState({is_waiting: false}), 15000)
-        this.addMessage({nickname: this.state.user.nickname, time: Date.now(), text: this.state.text})
+        this.addMessage({nickname: this.state.user.nickname, time: Date.now(), text: this.state.text, color: this.state.user.color})
         this.setState({text: ''})
     }
     signout = () => {
@@ -129,7 +130,7 @@ class Chat extends React.Component {
                     <List dense>
                         <ListItem>
                             <ListItemAvatar>
-                                <Avatar>
+                                <Avatar style={{backgroundColor: '#' + this.state.user.color.toString(16)}}>
                                     <PersonIcon />
                                 </Avatar>
                             </ListItemAvatar>
@@ -139,9 +140,9 @@ class Chat extends React.Component {
                             </ListItemSecondaryAction>
                         </ListItem>
                         {Object.values(this.state.users).map(user => (
-                            <ListItem>
+                            <ListItem key={user.id}>
                                 <ListItemAvatar>
-                                    <Avatar>
+                                    <Avatar style={{backgroundColor: '#' + user.color.toString(16)}}>
                                         <PersonIcon />
                                     </Avatar>
                                 </ListItemAvatar>
@@ -182,7 +183,7 @@ class Chat extends React.Component {
                             variant="outlined" 
                             color="primary" 
                             className="send_button" 
-                            disabled={this.state.text.length > 200 || this.state.text.length < 1 || this.state.is_waiting || this.state.user.is_muted}
+                            disabled={this.state.text.length > 200 || this.state.text.length < 1 || this.state.is_waiting || Boolean(this.state.user.is_muted)}
                         > 
                             Send
                         </Button>

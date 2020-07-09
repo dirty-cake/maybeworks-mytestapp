@@ -6,7 +6,7 @@ class Message extends React.Component {
     
     render() {
       return (
-        <div className="message">
+        <div className="message" style={{backgroundColor: '#' + this.props.color.toString(16)}}>
             <div className="message_first_line">
                 <div className="message_author">{ this.props.nickname }</div>
                 <div className="message_time">{ DateTime.fromMillis(this.props.time).toLocaleString(DateTime.DATETIME_SHORT) } </div>

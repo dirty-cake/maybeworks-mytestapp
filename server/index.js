@@ -43,7 +43,7 @@ io.on('connect', (socket) => {
       return console.log('You can not send a message. Wait 15 seconds')
     }
     const validatedMessage = await schemas.send.validateAsync(message)
-    socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: currentTime, text: validatedMessage.text})
+    socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: currentTime, text: validatedMessage.text, color: socket.user.color})
     socket.lastMessageTime = currentTime
   })
   socket.on('disconnect', () => {
