@@ -21,7 +21,9 @@ module.exports = class User extends Model {
 
     $formatDatabaseJson(model) {
       const json = super.$formatDatabaseJson(model)
-      json.password = bcrypt.hashSync(json.password, 11)
+      if (json.password)  {
+        json.password = bcrypt.hashSync(json.password, 11)
+      }
       return json
     }
 

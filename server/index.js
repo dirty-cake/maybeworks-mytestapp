@@ -33,27 +33,37 @@ io.use((socket, next) => {
 })
 
 io.on('connect', (socket) => {
-  socket.broadcast.emit('user connected', { nickname: socket.user.nickname })
+  socket.broadcast.emit('user connected', socket.user)
   socket.on('new message', async (message) => {
     if (socket.user.is_muted) {
       return console.log('You are muted. You can not send messages')
     }
+    const currentTime = Date.now()
+    if (socket.lastMessageTime && (currentTime - socket.lastMessageTime < 15000)) {
+      return console.log('You can not send a message. Wait 15 seconds')
+    }
     const validatedMessage = await schemas.send.validateAsync(message)
-    socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: Date.now(), text: validatedMessage.text})
+    socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: currentTime, text: validatedMessage.text})
+    socket.lastMessageTime = currentTime
   })
   socket.on('disconnect', () => {
-    socket.broadcast.emit('user disconnected', { nickname: socket.user.nickname })
+    socket.broadcast.emit('user disconnected', socket.user)
   })
-  socket.on('mute user', (user) => {
+  socket.on('mute user', async (user) => {
     if (socket.user.is_admin) {
-      user.is_muted = true
-      socket.broadcast.emit('mute user', { nickname: user.nickname })
+      await models.User.query()
+        .patch({ is_muted: true })
+        .findById(user.id)
+      socket.broadcast.emit('mute user', { id: user.id })
     }
   })
-  socket.on('ban user', (user) => {
+  socket.on('ban user', async (user) => {
+    console.log(user)
     if (socket.user.is_admin) {
-      user.is_banned = true
-      socket.broadcast.emit('ban user', { nickname: user.nickname })
+      await models.User.query()
+        .patch({ is_banned: true })
+        .findById(user.id)
+      socket.broadcast.emit('ban user', { id: user.id })
     }
   })
 })

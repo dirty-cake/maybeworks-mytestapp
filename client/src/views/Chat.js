@@ -16,8 +16,9 @@ class Chat extends React.Component {
         this.state = {
             text: '',
             messages: [],
-            users: [],
-            user: { nickname: '', is_muted: false }
+            users: {},
+            user: { nickname: '', is_muted: false },
+            is_waiting: false
         }
     }
     componentDidMount() {
@@ -34,15 +35,32 @@ class Chat extends React.Component {
         this.socket.on('new message', this.addMessage)
         this.socket.on('user connected', user => {
             this.setState(state => ({
-                users: [...state.users, user]
+                users: {...state.users, [user.id]: user}
             }))
         })
         this.socket.on('user disconnected', user => {
-            this.setState(state => ({
-                users: state.users.filter((element) => {
-                    return element.nickname !== user.nickname
-                })
-            }))
+            this.setState(state => {
+                const users = {...state.users }
+                delete users[user.id]
+                return {users: users}
+            })
+        })
+        this.socket.on('mute user', user => {
+            if (this.state.user.id === user.id) {
+                this.setState(state => ({
+                    user: {...state.user, is_muted: true}
+                }))
+            } else {
+                this.setState(state => ({
+                   users: {...state.users, [user.id]: {...state.users[user.id], is_muted: true}}
+                }))
+            }
+        })
+        this.socket.on('ban user', user => {
+            console.log(user)
+            if (this.state.user.id === user.id) {
+                this.signout()
+            }
         })
     }
     addMessage = (message) => {
@@ -66,7 +84,10 @@ class Chat extends React.Component {
             });
             console.log('Returned data:', response);
             this.setState(state => ({
-                users: [...state.users, ...response.data]
+                users: {...state.users, ...response.data.reduce((users, user) => {
+                    users[user.id] = user
+                    return users
+                }, {})}
             }))
         } catch (e) {
             console.log(`Axios request failed: ${e}`);
@@ -79,8 +100,12 @@ class Chat extends React.Component {
             return console.log('You can not send empty message')
         } else if (this.state.user.is_muted) {
             return console.log('You are muted. You can not send messages')
+        } else if (this.state.is_waiting) {
+            return console.log('You can not send a message. Wait 15 seconds')
         }
         this.socket.emit('new message', {text: this.state.text})
+        this.setState({is_waiting: true})
+        setTimeout(() => this.setState({is_waiting: false}), 15000)
         this.addMessage({nickname: this.state.user.nickname, time: Date.now(), text: this.state.text})
         this.setState({text: ''})
     }
@@ -89,14 +114,14 @@ class Chat extends React.Component {
         this.socket.disconnect()
         this.props.history.push('/')
     }
-    /* mute = () => {
-        this.socket.emit('mute user', {id: })
-        console.log(, 'is muted')
+    mute = (userId) => {
+        this.socket.emit('mute user', {id: userId})
+        console.log(userId, 'is muted')
     }
-    ban = () => {
-        this.socket.emit('ban user', {id: })
-        console.log(, 'is banned')
-    } */
+    ban = (userId) => {
+        this.socket.emit('ban user', {id: userId})
+        console.log(userId, 'is banned')
+    }
     render() {
         return (
             <div className="chat_page">
@@ -113,7 +138,7 @@ class Chat extends React.Component {
                                 <Button onClick={this.signout} size="large" variant="outlined" color="primary" > Sign out</Button>
                             </ListItemSecondaryAction>
                         </ListItem>
-                        {this.state.users.map(user => (
+                        {Object.values(this.state.users).map(user => (
                             <ListItem>
                                 <ListItemAvatar>
                                     <Avatar>
@@ -151,7 +176,16 @@ class Chat extends React.Component {
                             onKeyUp={event => event.key === 'Enter' ? this.sendMessage(event) : null} 
                             onChange={this.changeText} value={this.state.text} label="Write a message" variant="outlined" fullWidth/>
                         </div>
-                        <Button onClick={this.sendMessage} size="large" variant="outlined" color="primary" className="send_button" disabled={(this.state.text.length > 200 || this.state.text.length < 1) } > Send</Button>
+                        <Button 
+                            onClick={this.sendMessage} 
+                            size="large" 
+                            variant="outlined" 
+                            color="primary" 
+                            className="send_button" 
+                            disabled={this.state.text.length > 200 || this.state.text.length < 1 || this.state.is_waiting || this.state.user.is_muted}
+                        > 
+                            Send
+                        </Button>
                     </div>
                 </div>
             </div>
