@@ -32,16 +32,34 @@ io.use((socket, next) => {
   }
 })
 
-io.on('connect', (socket) => {
+io.on('connect', async (socket) => {
+  if (socket.user.is_admin) {
+    const users = await models.User.query()
+    .select('*')
+    .whereNot('id', socket.user.id)
+
+    socket.emit('all users',  users)
+  } else {
+      const usersId = Object.values(io.sockets.sockets).map(item => item.user.id)
+      const users = await models.User.query()
+      .select('*')
+      .whereNot('id', socket.user.id)
+      .whereIn('id', usersId)
+      socket.emit('all users',  users)
+  }
+
   socket.broadcast.emit('user connected', socket.user)
   socket.on('new message', async (message) => {
     if (socket.user.is_muted) {
       return console.log('You are muted. You can not send messages')
     }
+
     const currentTime = Date.now()
+
     if (socket.lastMessageTime && (currentTime - socket.lastMessageTime < 15000)) {
       return console.log('You can not send a message. Wait 15 seconds')
     }
+
     const validatedMessage = await schemas.send.validateAsync(message)
     socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: currentTime, text: validatedMessage.text, color: socket.user.color})
     socket.lastMessageTime = currentTime
@@ -50,12 +68,14 @@ io.on('connect', (socket) => {
     socket.broadcast.emit('user disconnected', socket.user)
   })
   socket.on('mute user', async (user) => {
-    if (socket.user.is_admin) {
-      await models.User.query()
-        .patch({ is_muted: true })
-        .findById(user.id)
-      io.sockets.emit('mute user', { id: user.id })
+    if (!socket.user.is_admin) {
+      return;
     }
+
+    await models.User.query()
+      .patch({ is_muted: true })
+      .findById(user.id)
+    io.sockets.emit('mute user', { id: user.id })
   })
   socket.on('unmute user', async (user) => {
     if (socket.user.is_admin) {

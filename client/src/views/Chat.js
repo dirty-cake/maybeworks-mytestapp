@@ -11,7 +11,7 @@ import SendIcon from '@material-ui/icons/Send'
 import MicOffIcon from '@material-ui/icons/MicOff'
 import MicIcon from '@material-ui/icons/Mic'
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline'
-import axios from 'axios'
+// import axios from 'axios'
 
 
 import './Chat.css'
@@ -31,7 +31,6 @@ class Chat extends React.Component {
         this.setState({
             user: jwt.decode(localStorage.getItem('token'))
         })
-        this.fetchUsers()
         this.socket = io('http://localhost:8080', {
             path: '/socket',
             query: {
@@ -43,6 +42,14 @@ class Chat extends React.Component {
             console.log((user))
             this.setState(state => ({
                 users: {...state.users, [user.id]: user}
+            }))
+        })
+        this.socket.on('all users', users => {
+            this.setState(state => ({
+                users: {...state.users, ...users.reduce((users, user) => {
+                    users[user.id] = user
+                    return users
+                }, {})}
             }))
         })
         this.socket.on('user disconnected', user => {
@@ -105,7 +112,7 @@ class Chat extends React.Component {
     changeText = (event) => {
         this.setState({text: event.target.value});
     }
-    fetchUsers = async () => {
+    /* fetchUsers = async () => {
         try {
             const response = await axios.get('/users', {
                 headers: {
@@ -122,7 +129,7 @@ class Chat extends React.Component {
         } catch (e) {
             console.log(`Axios request failed: ${e}`);
         }
-    }
+    } */
     sendMessage = () => {
         if (this.state.text.length > 200) {
             return console.log('You can not put more than 200 elements')
