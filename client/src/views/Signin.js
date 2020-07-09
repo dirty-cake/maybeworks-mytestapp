@@ -32,8 +32,19 @@ class Signin extends React.Component {
         return (
             <div className="page_login">
                 <div className="login_form">
-                <TextField onChange={this.nicknameChange} label="nickname" variant="outlined" className="login_text_field"/>
-                <TextField onChange={this.passwordChange} label="password" type="password" variant="outlined" className="login_text_field"/>
+                <TextField 
+                  onChange={this.nicknameChange} 
+                  label="nickname" 
+                  variant="outlined" 
+                  className="login_text_field" 
+                  onKeyUp={event => event.key === 'Enter' ? this.signin(event) : null}/>
+                <TextField 
+                  onChange={this.passwordChange} 
+                  label="password" 
+                  type="password" 
+                  variant="outlined" 
+                  className="login_text_field"
+                  onKeyUp={event => event.key === 'Enter' ? this.signin(event) : null}/>
                 <Button onClick={this.signin} size="large" variant="outlined" color="primary">Sing in</Button>
                 </div>
             </div>
