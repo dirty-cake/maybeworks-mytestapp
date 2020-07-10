@@ -3,10 +3,24 @@
     height: 100vh;
 }
 .first_chat_page {
-    display: flex;
-    flex-direction: column;
     width: 300px;
-    border-right: 3px solid black;
+    flex-shrink: 0;
+}
+@media (max-width: 960px) {
+    .first_chat_page {
+        width: 0px;
+        flex-shrink: 0;
+    }
+}
+.chat_nickname {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.chat_user_item {
+    padding-right: 100px!important;
+}
+.chat_drawer > .MuiDrawer-paper {
+    width: 300px;
 }
 .users{
     display: flex;
@@ -39,11 +53,12 @@
     flex-direction: row;
     margin: 15px;
     justify-content: space-between;
+    align-content: center;
 }
 .message_textfield {
     margin-right: 10px;
+    margin-left: 10px;
     flex-grow: 1;
-
 }
 
 

@@ -33,73 +33,100 @@ io.use((socket, next) => {
 })
 
 io.on('connect', async (socket) => {
-  if (socket.user.is_admin) {
-    const users = await models.User.query()
+  const user = await models.User.query().select('*').findById(socket.user.id)
+  socket.user = user.toJSON()
+  if (socket.user.is_banned) {
+    return socket.disconnect(true)
+  }
+  socket.emit('user data', socket.user)
+
+  const onlineUserIds = Object.values(io.sockets.sockets).map(socket => socket.user.id)
+  const users = await models.User.query()
     .select('*')
     .whereNot('id', socket.user.id)
+    .where(query => {
+      if (!socket.user.is_admin) {
+        query.whereIn('id', onlineUserIds)
+      }
+    })
+  users.forEach(user => {
+    if (onlineUserIds.includes(user.id)) {
+      user.is_online = true
+    } else {
+      user.is_online = false
+    }
+  })
+  socket.emit('all users',  users)
 
-    socket.emit('all users',  users)
-  } else {
-      const usersId = Object.values(io.sockets.sockets).map(item => item.user.id)
-      const users = await models.User.query()
-      .select('*')
-      .whereNot('id', socket.user.id)
-      .whereIn('id', usersId)
-      socket.emit('all users',  users)
-  }
+  socket.broadcast.emit('user connected', {...socket.user, is_online: true})
 
-  socket.broadcast.emit('user connected', socket.user)
+  socket.on('disconnect', () => {
+    socket.broadcast.emit('user disconnected', socket.user)
+  })
+
   socket.on('new message', async (message) => {
     if (socket.user.is_muted) {
       return console.log('You are muted. You can not send messages')
     }
-
     const currentTime = Date.now()
-
-    if (socket.lastMessageTime && (currentTime - socket.lastMessageTime < 15000)) {
+    if (socket.user.lastMessageTime && (currentTime - socket.user.lastMessageTime < 15000)) {
       return console.log('You can not send a message. Wait 15 seconds')
     }
-
     const validatedMessage = await schemas.send.validateAsync(message)
-    socket.broadcast.emit('new message', { nickname: socket.user.nickname, time: currentTime, text: validatedMessage.text, color: socket.user.color})
-    socket.lastMessageTime = currentTime
+    socket.broadcast.emit('new message', {
+      nickname: socket.user.nickname,
+      text: validatedMessage.text,
+      color: socket.user.color,
+      time: currentTime
+    })
+    socket.user.lastMessageTime = currentTime
   })
-  socket.on('disconnect', () => {
-    socket.broadcast.emit('user disconnected', socket.user)
-  })
+
   socket.on('mute user', async (user) => {
     if (!socket.user.is_admin) {
-      return;
+      return console.log('You are not admin')
     }
-
-    await models.User.query()
-      .patch({ is_muted: true })
-      .findById(user.id)
+    await models.User.query().patch({ is_muted: true }).findById(user.id)
+    Object.values(io.sockets.sockets).forEach(socket => {
+      if (socket.user.id === user.id) {
+        socket.is_muted = true
+      }
+    })
     io.sockets.emit('mute user', { id: user.id })
   })
+
   socket.on('unmute user', async (user) => {
-    if (socket.user.is_admin) {
-      await models.User.query()
-      .patch({ is_muted: false })
-      .findById(user.id)
-      io.sockets.emit('unmute user', { id: user.id })
+    if (!socket.user.is_admin) {
+      return console.log('You are not admin')
     }
+    await models.User.query().patch({ is_muted: false }).findById(user.id)
+    Object.values(io.sockets.sockets).forEach(socket => {
+      if (socket.user.id === user.id) {
+        socket.is_muted = false
+      }
+    })
+    io.sockets.emit('unmute user', { id: user.id })
   })
+
   socket.on('ban user', async (user) => {
-    if (socket.user.is_admin) {
-      await models.User.query()
-        .patch({ is_banned: true })
-        .findById(user.id)
-      io.sockets.emit('ban user', { id: user.id })
+    if (!socket.user.is_admin) {
+      return console.log('You are not admin')
     }
+    await models.User.query().patch({ is_banned: true }).findById(user.id)
+    io.sockets.emit('ban user', { id: user.id })
+    Object.values(io.sockets.sockets).forEach(socket => {
+      if (socket.user.id === user.id) {
+        socket.disconnect(true)
+      }
+    })
   })
+
   socket.on('unban user', async (user) => {
-    if (socket.user.is_admin) {
-      await models.User.query()
-      .patch({ is_banned: false })
-      .findById(user.id)
-    io.sockets.emit('unban user', {id: user.id})
+    if (!socket.user.is_admin) {
+      return console.log('You are not admin')
     }
+    await models.User.query().patch({ is_banned: false }).findById(user.id)
+    io.sockets.emit('unban user', {id: user.id})
   })
 })
 
