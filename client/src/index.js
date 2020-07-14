@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
 import Chat from './views/Chat.js'
-import Signin from './views/Signin.js'
+import SigninHook from './views/SigninHook.js'
 import {
   BrowserRouter as Router,
   Switch,
@@ -17,7 +17,7 @@ import {
       <Switch>
         <Route path="/chat" render={() => localStorage.getItem('token') ? <Chat /> : <Redirect to="/" />}>
         </Route>
-        <Route path="/" render={() => !localStorage.getItem('token') ? <Signin /> : <Redirect to="/chat" />}>
+        <Route path="/" render={() => !localStorage.getItem('token') ? <SigninHook /> : <Redirect to="/chat" />}>
         </Route>
       </Switch>
     </Router>

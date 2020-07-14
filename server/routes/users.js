@@ -8,6 +8,7 @@ const router = new Router({ prefix: '/users' })
 
 router.post('/signin', async (ctx) => {
   const validatedUser = await schemas.signin.validateAsync(ctx.request.body)
+  console.log('validatedUser')
   const user = await ctx.state.models.User.query()
     .select('*')
     .where('nickname', validatedUser.nickname)
