@@ -40,3 +40,9 @@ code {
   z-index: 102;
   padding: 40px;
 }
+
+.icon-button {
+  position: absolute;
+  right: 350px;
+  top: 310px;
+}

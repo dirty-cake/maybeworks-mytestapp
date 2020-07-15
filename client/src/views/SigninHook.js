@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react'
 import '../views/Signin.css'
-import { Button, TextField } from '@material-ui/core/'
+import { IconButton, Button, TextField } from '@material-ui/core/'
+import CloseIcon from '@material-ui/icons/Close'
 import axios from "axios"
 import { withRouter } from "react-router"
 import Modal from "../components/Modal"
@@ -50,7 +51,9 @@ const SigninHook = (props) => {
             </div>
             <Modal ref={modalRef}>
                 <h1>Check your nickname and password</h1>
-                <button onClick={modalRef.current?.close}> Close Modal </button>
+                <IconButton onClick={modalRef.current?.close} class="icon-button"> 
+                    <CloseIcon />
+                </IconButton>
             </Modal>
         </div>
     )
