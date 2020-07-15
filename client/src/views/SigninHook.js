@@ -51,7 +51,7 @@ const SigninHook = (props) => {
             </div>
             <Modal ref={modalRef}>
                 <h1>Check your nickname and password</h1>
-                <IconButton onClick={modalRef.current?.close} class="icon-button"> 
+                <IconButton onClick={modalRef.current?.close} className="icon-button"> 
                     <CloseIcon />
                 </IconButton>
             </Modal>
