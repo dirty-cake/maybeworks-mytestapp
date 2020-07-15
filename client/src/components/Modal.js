@@ -21,10 +21,12 @@ const Modal = forwardRef((props,ref) => {
 
   if (display) {
     return ReactDOM.createPortal(
-      <div className={"modal-wrapper"}>
-        <div onClick={close} className={"modal-backdrop"}>
-          <div className={"modal-box"}>
-            {props.children}
+      <div className="modal-wrapper">
+        <div onClick={close} className="modal-backdrop" >
+          <div className="modal-box">
+            {props.children({
+              open,
+            })}
           </div>
         </div>
       </div>, document.getElementById("modal-root"))
