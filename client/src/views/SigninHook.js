@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import '../views/Signin.css'
 import { Button, TextField } from '@material-ui/core/'
 import axios from "axios"
 import { withRouter } from "react-router"
+import Modal from "../components/Modal"
 
 const SigninHook = (props) => {
-    const [nickname, setNickname] = useState('')
-    const [password, setPassword] = useState('')
+    const modalRef = useRef()
     const [input, setInput] = useState({})
 
     const signin = async () => {
@@ -18,6 +18,7 @@ const SigninHook = (props) => {
             }
         } catch (e) {
           console.log(`Axios request failed: ${e}`);
+          modalRef.current.openModal()
         }
     }
     const inputChange = (event) => {
@@ -29,7 +30,7 @@ const SigninHook = (props) => {
 
     return (
         <div className="page_login">
-                <div className="login_form">
+            <div className="login_form">
                 <TextField 
                   onChange={inputChange} 
                   name="nickname"
@@ -47,6 +48,10 @@ const SigninHook = (props) => {
                   onKeyUp={onKeyUp}/>
                 <Button onClick={signin} size="large" variant="outlined" color="primary">Sing in</Button>
             </div>
+            <Modal ref={modalRef}>
+                <h1>Check your nickname and password</h1>
+                <button onClick={modalRef.current?.close}> Close Modal </button>
+            </Modal>
         </div>
     )
 }
