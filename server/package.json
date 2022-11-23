@@ -19,7 +19,7 @@
     "koa-router": "^9.1.0",
     "mysql": "^2.18.1",
     "objection": "^2.2.0",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.5.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
